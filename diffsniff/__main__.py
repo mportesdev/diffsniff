@@ -279,12 +279,12 @@ class ResultDialog(QtWidgets.QDialog):
                                            self.ignore_dirs, self.ignore_files,
                                            skip=names, reverse=True))
 
-        for item_name, info in names.items():
-            if info.get('is_equal'):
+        for item_name, item_info in names.items():
+            if item_info.equal:
                 continue
             yield FileItem(self, self.dir_path_1, self.dir_path_2,
-                           info['mtimes'], item_name,
-                           info['is_unique'], info['left_to_right'])
+                           item_info.mtimes, item_name,
+                           item_info.unique, item_info.left_to_right)
 
 
 class PresetsDialog(QtWidgets.QDialog):

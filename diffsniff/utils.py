@@ -1,7 +1,10 @@
+from collections import namedtuple
 import filecmp
 import os
 from pathlib import Path
 import shutil
+
+ItemInfo = namedtuple('ItemInfo', 'equal unique mtimes left_to_right')
 
 
 def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
@@ -40,23 +43,22 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
 
             if not os.path.exists(file_there):
                 # unique file
-                info = {'mtimes': None, 'is_unique': True,
-                        'left_to_right': not reverse}
+                info = ItemInfo(equal=False, unique=True, mtimes=None,
+                                left_to_right=not reverse)
 
             elif not filecmp.cmp(file_here, file_there, shallow=False):
                 # unequal files of the same name
                 mtime_here = os.path.getmtime(file_here)
                 mtime_there = os.path.getmtime(file_there)
-                info = {'is_unique': False,
-                        'mtimes': (mtime_there, mtime_here) if reverse
-                                  else (mtime_here, mtime_there)}
-                if mtime_there > mtime_here:
-                    info['left_to_right'] = reverse
-                else:
-                    info['left_to_right'] = not reverse
+                info = ItemInfo(equal=False, unique=False,
+                                mtimes=(mtime_there, mtime_here)
+                                if reverse else (mtime_here, mtime_there),
+                                left_to_right=reverse
+                                if mtime_there > mtime_here else not reverse)
             else:
                 # equal files
-                info = {'is_equal': True}
+                info = ItemInfo(equal=True, unique=False, mtimes=None,
+                                left_to_right=None)
 
             result[file_rel_path] = info
 
