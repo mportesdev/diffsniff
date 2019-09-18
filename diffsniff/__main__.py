@@ -157,7 +157,7 @@ class MainWidget(QtWidgets.QWidget):
 class FileItem(QtWidgets.QFrame):
 
     def __init__(self, parent, dir_path_1, dir_path_2, mtimes, item_name,
-                 is_unique, left_to_right):
+                 unique, left_to_right):
         super().__init__(parent)
         self.parent = parent
         self.left_abs_path = dir_path_1 / item_name
@@ -170,12 +170,12 @@ class FileItem(QtWidgets.QFrame):
             self.right_time = datetime.fromtimestamp(right_mtime).isoformat(
                 ' ', 'seconds')
 
-        left_label = QtWidgets.QLabel('' if is_unique and not left_to_right
+        left_label = QtWidgets.QLabel('' if unique and not left_to_right
                                       else item_name)
-        right_label = QtWidgets.QLabel('' if is_unique and left_to_right
+        right_label = QtWidgets.QLabel('' if unique and left_to_right
                                        else item_name)
 
-        if is_unique:
+        if unique:
             copy_button = QtWidgets.QPushButton(get_icon(
                 'right' if left_to_right else 'left'), '')
             copy_button.setToolTip('Copy file')

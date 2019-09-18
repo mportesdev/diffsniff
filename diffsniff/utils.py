@@ -27,40 +27,40 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
 
         for filename in files:
             # file relative path (this is the string stored in `result`)
-            file_rel_path = Path(filename if rel_path == '.'
-                                 else os.path.join(rel_path,
-                                                   filename)).as_posix()
-            assert '\\' not in file_rel_path
+            item_name = Path(filename if rel_path == '.'
+                             else os.path.join(rel_path,
+                                               filename)).as_posix()
+            assert '\\' not in item_name
 
-            if file_rel_path in skip:
+            if item_name in skip:
                 continue
 
             # absolute paths of files
             file_here = os.path.join(this_abspath, filename)
             assert os.path.samefile(file_here,
-                                    os.path.join(this_path, file_rel_path))
-            file_there = os.path.join(other_path, file_rel_path)
+                                    os.path.join(this_path, item_name))
+            file_there = os.path.join(other_path, item_name)
 
             if not os.path.exists(file_there):
                 # unique file
-                info = ItemInfo(equal=False, unique=True, mtimes=None,
-                                left_to_right=not reverse)
+                item_info = ItemInfo(equal=False, unique=True, mtimes=None,
+                                     left_to_right=not reverse)
 
             elif not filecmp.cmp(file_here, file_there, shallow=False):
                 # unequal files of the same name
                 mtime_here = os.path.getmtime(file_here)
                 mtime_there = os.path.getmtime(file_there)
-                info = ItemInfo(equal=False, unique=False,
-                                mtimes=(mtime_there, mtime_here)
-                                if reverse else (mtime_here, mtime_there),
-                                left_to_right=reverse
-                                if mtime_there > mtime_here else not reverse)
+                item_info = ItemInfo(equal=False, unique=False,
+                                     mtimes=(mtime_there, mtime_here)
+                                     if reverse else (mtime_here, mtime_there),
+                                     left_to_right=reverse
+                                     if mtime_there > mtime_here else not reverse)
             else:
                 # equal files
-                info = ItemInfo(equal=True, unique=False, mtimes=None,
-                                left_to_right=None)
+                item_info = ItemInfo(equal=True, unique=False, mtimes=None,
+                                     left_to_right=None)
 
-            result[file_rel_path] = info
+            result[item_name] = item_info
 
     return result
 
