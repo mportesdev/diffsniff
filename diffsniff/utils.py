@@ -36,25 +36,25 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
                 continue
 
             # absolute paths of files
-            file_here = os.path.join(this_abspath, filename)
-            assert os.path.samefile(file_here,
+            file_this = os.path.join(this_abspath, filename)
+            assert os.path.samefile(file_this,
                                     os.path.join(this_path, item_name))
-            file_there = os.path.join(other_path, item_name)
+            file_other = os.path.join(other_path, item_name)
 
-            if not os.path.exists(file_there):
+            if not os.path.exists(file_other):
                 # unique file
                 item_info = ItemInfo(equal=False, unique=True, mtimes=None,
                                      left_to_right=not reverse)
 
-            elif not filecmp.cmp(file_here, file_there, shallow=False):
+            elif not filecmp.cmp(file_this, file_other, shallow=False):
                 # unequal files of the same name
-                mtime_here = os.path.getmtime(file_here)
-                mtime_there = os.path.getmtime(file_there)
+                mtime_this = os.path.getmtime(file_this)
+                mtime_other = os.path.getmtime(file_other)
                 item_info = ItemInfo(equal=False, unique=False,
-                                     mtimes=(mtime_there, mtime_here)
-                                     if reverse else (mtime_here, mtime_there),
+                                     mtimes=(mtime_other, mtime_this)
+                                     if reverse else (mtime_this, mtime_other),
                                      left_to_right=reverse
-                                     if mtime_there > mtime_here else not reverse)
+                                     if mtime_other > mtime_this else not reverse)
             else:
                 # equal files
                 item_info = ItemInfo(equal=True, unique=False, mtimes=None,
