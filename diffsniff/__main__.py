@@ -357,13 +357,11 @@ class DiffDialog(QtWidgets.QDialog):
             for line in diff:
                 if line.startswith('+'):
                     diff_display.setTextBackgroundColor(QtGui.QColor('#a0f0a0'))
-                    diff_display.insertPlainText(line)
                 elif line.startswith('-'):
                     diff_display.setTextBackgroundColor(QtGui.QColor('#f0a0a0'))
-                    diff_display.insertPlainText(line)
                 else:
                     diff_display.setTextBackgroundColor(QtGui.QColor('#ffffff'))
-                    diff_display.insertPlainText(line)
+                diff_display.insertPlainText(line)
 
             layout.addWidget(diff_display)
 
