@@ -351,9 +351,21 @@ class DiffDialog(QtWidgets.QDialog):
                                         fromfiledate=old_iso_time,
                                         tofiledate=new_iso_time)
 
-            diff_display = QtWidgets.QPlainTextEdit(''.join(diff))
+            diff_display = QtWidgets.QTextEdit()
             diff_display.setFont(QtGui.QFont('Liberation Mono', 10))
             diff_display.setReadOnly(True)
+            html_lines = []
+            for line in diff:
+                if line.startswith('+'):
+                    html_lines.append('\x3cpre style="background-color: '
+                                      f'#a0f0a0"\x3e{line}\x3c/pre\x3e')
+                elif line.startswith('-'):
+                    html_lines.append('\x3cpre style="background-color: '
+                                      f'#f0a0a0"\x3e{line}\x3c/pre\x3e')
+                else:
+                    html_lines.append(f'\x3cpre\x3e{line}\x3c/pre\x3e')
+
+            diff_display.append(''.join(html_lines))
             layout.addWidget(diff_display)
 
         self.setLayout(layout)
