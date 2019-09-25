@@ -9,6 +9,11 @@ ItemInfo = namedtuple('ItemInfo', 'equal unique mtimes left_to_right')
 
 def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
                     skip=(), reverse=False):
+    """Walk all files in `this_path` recursively and check for
+    existence of the file names in `other_path`. If a file is found in
+    both paths, check if the files are equal. Return a dictionary with
+    all processed file names as keys and ItemInfo objects as values.
+    """
     result = {}
     dirs_to_prune = shutil.ignore_patterns(*ignore_dirs)
     files_to_prune = shutil.ignore_patterns(*ignore_files)
