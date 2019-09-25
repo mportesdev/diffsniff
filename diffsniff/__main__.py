@@ -354,18 +354,17 @@ class DiffDialog(QtWidgets.QDialog):
             diff_display = QtWidgets.QTextEdit()
             diff_display.setFont(QtGui.QFont('Liberation Mono', 10))
             diff_display.setReadOnly(True)
-            html_lines = []
             for line in diff:
                 if line.startswith('+'):
-                    html_lines.append('\x3cpre style="background-color: '
-                                      f'#a0f0a0"\x3e{line}\x3c/pre\x3e')
+                    diff_display.setTextBackgroundColor(QtGui.QColor('#a0f0a0'))
+                    diff_display.insertPlainText(line)
                 elif line.startswith('-'):
-                    html_lines.append('\x3cpre style="background-color: '
-                                      f'#f0a0a0"\x3e{line}\x3c/pre\x3e')
+                    diff_display.setTextBackgroundColor(QtGui.QColor('#f0a0a0'))
+                    diff_display.insertPlainText(line)
                 else:
-                    html_lines.append(f'\x3cpre\x3e{line}\x3c/pre\x3e')
+                    diff_display.setTextBackgroundColor(QtGui.QColor('#ffffff'))
+                    diff_display.insertPlainText(line)
 
-            diff_display.append(''.join(html_lines))
             layout.addWidget(diff_display)
 
         self.setLayout(layout)
