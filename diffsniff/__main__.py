@@ -1,4 +1,3 @@
-from datetime import datetime
 import difflib
 from pathlib import Path
 import shutil
@@ -156,7 +155,7 @@ class MainWidget(QtWidgets.QWidget):
 
 class FileItem(QtWidgets.QFrame):
 
-    def __init__(self, parent, dir_path_1, dir_path_2, mtimes, item_name,
+    def __init__(self, parent, dir_path_1, dir_path_2, item_name, mtimes, sizes,
                  unique, left_to_right):
         super().__init__(parent)
         self.parent = parent
@@ -164,11 +163,8 @@ class FileItem(QtWidgets.QFrame):
         self.right_abs_path = dir_path_2 / item_name
 
         if mtimes:
-            left_mtime, right_mtime = mtimes
-            self.left_time = datetime.fromtimestamp(left_mtime).isoformat(
-                ' ', 'seconds')
-            self.right_time = datetime.fromtimestamp(right_mtime).isoformat(
-                ' ', 'seconds')
+            self.left_short_stats = utils.short_stats(mtimes[0], sizes[0])
+            self.right_short_stats = utils.short_stats(mtimes[1], sizes[1])
 
         left_label = QtWidgets.QLabel('' if unique and not left_to_right
                                       else item_name)
@@ -196,8 +192,8 @@ class FileItem(QtWidgets.QFrame):
                                           else self.diff_right_vs_left)
             utils.set_fg_color(right_label if left_to_right else left_label,
                                QtGui.QColor(*etc.LIGHT))
-            left_label.setToolTip(self.left_time)
-            right_label.setToolTip(self.right_time)
+            left_label.setToolTip(self.left_short_stats)
+            right_label.setToolTip(self.right_short_stats)
 
         copy_button.clicked.connect(self.copy_right if left_to_right
                                     else self.copy_left)
@@ -229,11 +225,11 @@ class FileItem(QtWidgets.QFrame):
 
     def diff_right_vs_left(self):
         DiffDialog(self.left_abs_path, self.right_abs_path,
-                   self.left_time, self.right_time)
+                   self.left_short_stats, self.right_short_stats)
 
     def diff_left_vs_right(self):
         DiffDialog(self.right_abs_path, self.left_abs_path,
-                   self.right_time, self.left_time)
+                   self.right_short_stats, self.left_short_stats)
 
     def delete_left(self):
         self.left_abs_path.unlink()
@@ -283,7 +279,7 @@ class ResultDialog(QtWidgets.QDialog):
             if item_info.equal:
                 continue
             yield FileItem(self, self.dir_path_1, self.dir_path_2,
-                           item_info.mtimes, item_name,
+                           item_name, item_info.mtimes, item_info.sizes,
                            item_info.unique, item_info.left_to_right)
 
 

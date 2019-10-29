@@ -1,10 +1,11 @@
 from collections import namedtuple
+from datetime import datetime
 import filecmp
 import os
 from pathlib import Path
 import shutil
 
-ItemInfo = namedtuple('ItemInfo', 'equal unique mtimes left_to_right')
+ItemInfo = namedtuple('ItemInfo', 'equal unique mtimes left_to_right sizes')
 
 
 def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
@@ -49,25 +50,35 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
             if not os.path.exists(file_other):
                 # unique file
                 item_info = ItemInfo(equal=False, unique=True, mtimes=None,
-                                     left_to_right=not reverse)
+                                     left_to_right=not reverse, sizes=None)
 
             elif not filecmp.cmp(file_this, file_other, shallow=False):
                 # unequal files of the same name
                 mtime_this = os.path.getmtime(file_this)
                 mtime_other = os.path.getmtime(file_other)
+                size_this = os.path.getsize(file_this)
+                size_other = os.path.getsize(file_other)
                 item_info = ItemInfo(equal=False, unique=False,
                                      mtimes=(mtime_other, mtime_this)
                                      if reverse else (mtime_this, mtime_other),
                                      left_to_right=reverse
-                                     if mtime_other > mtime_this else not reverse)
+                                     if mtime_other > mtime_this else not
+                                     reverse,
+                                     sizes=(size_other, size_this)
+                                     if reverse else (size_this, size_other))
             else:
                 # equal files
                 item_info = ItemInfo(equal=True, unique=False, mtimes=None,
-                                     left_to_right=None)
+                                     left_to_right=None, sizes=None)
 
             result[item_name] = item_info
 
     return result
+
+
+def short_stats(mtime: float, size: int) -> str:
+    mtime_iso = datetime.fromtimestamp(mtime).isoformat(' ', 'seconds')
+    return f'{mtime_iso}, {size} Bytes'
 
 
 def set_fg_color(widget, color):
