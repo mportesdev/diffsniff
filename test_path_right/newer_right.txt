@@ -1,1 +1,2 @@
 different (newer) file in test_path_right
+yes, it's different
