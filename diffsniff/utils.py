@@ -48,25 +48,26 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
             file_other = os.path.join(other_path, item_name)
 
             if not os.path.exists(file_other):
-                # unique file
+                # unique file (only in this branch can `reverse` be True)
                 item_info = ItemInfo(equal=False, unique=True, mtimes=None,
                                      left_to_right=not reverse, sizes=None)
 
             elif not filecmp.cmp(file_this, file_other, shallow=False):
+                assert not reverse
+
                 # unequal files of the same name
                 mtime_this = os.path.getmtime(file_this)
                 mtime_other = os.path.getmtime(file_other)
                 size_this = os.path.getsize(file_this)
                 size_other = os.path.getsize(file_other)
+
                 item_info = ItemInfo(equal=False, unique=False,
-                                     mtimes=(mtime_other, mtime_this)
-                                     if reverse else (mtime_this, mtime_other),
-                                     left_to_right=reverse
-                                     if mtime_other > mtime_this else not
-                                     reverse,
-                                     sizes=(size_other, size_this)
-                                     if reverse else (size_this, size_other))
+                                     mtimes=(mtime_this, mtime_other),
+                                     left_to_right=mtime_this > mtime_other,
+                                     sizes=(size_this, size_other))
             else:
+                assert not reverse
+
                 # equal files
                 item_info = ItemInfo(equal=True, unique=False, mtimes=None,
                                      left_to_right=None, sizes=None)
