@@ -276,7 +276,7 @@ class ResultDialog(QtWidgets.QDialog):
                                            skip=names, reverse=True))
 
         for item_name, item_info in names.items():
-            if item_info.equal:
+            if item_info is None:
                 continue
             yield FileItem(self, self.dir_path_1, self.dir_path_2,
                            item_name, item_info.mtimes, item_info.sizes,

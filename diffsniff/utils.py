@@ -69,8 +69,7 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
                 assert not reverse
 
                 # equal files
-                item_info = ItemInfo(equal=True, unique=False, mtimes=None,
-                                     left_to_right=None, sizes=None)
+                item_info = None
 
             result[item_name] = item_info
 
