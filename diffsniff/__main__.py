@@ -70,6 +70,10 @@ class MainWidget(QtWidgets.QWidget):
         dir_layout_2.addWidget(browse_button_2)
         dir_layout_2.addWidget(self.dir_label_2)
 
+        # todo: implement functionality of this button
+        save_preset_button = QtWidgets.QPushButton('Save preset...')
+        save_preset_button.setFixedWidth(etc.TEXT_BUTTON_WIDTH)
+
         self.compare_button = QtWidgets.QPushButton(get_icon('glasses'),
                                                     'Compare')
         self.compare_button.setFixedWidth(etc.TEXT_AND_ICON_BUTTON_WIDTH)
@@ -88,6 +92,7 @@ class MainWidget(QtWidgets.QWidget):
         main_layout.addLayout(dir_layout_1)
         main_layout.addWidget(swap_button, alignment=QtCore.Qt.AlignCenter)
         main_layout.addLayout(dir_layout_2)
+        main_layout.addWidget(save_preset_button, alignment=QtCore.Qt.AlignLeft)
         main_layout.addWidget(self.compare_button,
                               alignment=QtCore.Qt.AlignCenter)
         self.setLayout(main_layout)
@@ -296,13 +301,13 @@ class PresetsDialog(QtWidgets.QDialog):
 
         self.preset_list = QtWidgets.QListWidget()
 
-        # todo: control `show_all` setting with a checkbutton labelled
-        #  "Show all presets"
-        show_all = False
+        # todo: implement functionality of this checkbox
+        show_all_checkbox = QtWidgets.QCheckBox('Show all presets')
 
         for preset_name in sorted(etc.presets):
             item = QtWidgets.QListWidgetItem(preset_name)
-            if (show_all or Path(etc.presets[preset_name].path_1).exists()
+            if (show_all_checkbox.isChecked() or
+                    Path(etc.presets[preset_name].path_1).exists()
                     and Path(etc.presets[preset_name].path_2).exists()):
                 self.preset_list.addItem(item)
                 if preset_name == self.parent.preset:
@@ -314,6 +319,7 @@ class PresetsDialog(QtWidgets.QDialog):
 
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.preset_list)
+        layout.addWidget(show_all_checkbox)
         layout.addWidget(ok_button, alignment=QtCore.Qt.AlignCenter)
         self.setLayout(layout)
         self.exec_()
