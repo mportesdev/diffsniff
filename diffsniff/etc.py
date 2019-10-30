@@ -16,11 +16,4 @@ TEXT_AND_ICON_BUTTON_WIDTH = 130
 Preset = namedtuple('Preset', 'path_1 path_2 ignore_dirs ignore_files')
 
 # presets dictionary
-presets = {
-    'default': Preset(
-        path_1=str(BASEDIR / 'test_path_left'),
-        path_2=str(BASEDIR / 'test_path_right'),
-        ignore_dirs=(),
-        ignore_files=()
-    )
-}
+presets = {}

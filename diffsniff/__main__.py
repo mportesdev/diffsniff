@@ -76,8 +76,12 @@ class MainWidget(QtWidgets.QWidget):
         self.compare_button.setFixedHeight(50)
         self.compare_button.clicked.connect(self.compare)
 
-        self.preset = 'default'
-        self.paths_from_preset(self.preset)
+        self.preset = None
+        self.dir_path_1 = etc.BASEDIR / 'test_path_left'
+        self.dir_path_2 = etc.BASEDIR / 'test_path_right'
+        self.ignore_dirs = ()
+        self.ignore_files = ()
+        self.refresh_display()
 
         # todo: refactor to a single grid layout with set column widths
         main_layout = QtWidgets.QVBoxLayout()
