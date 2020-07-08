@@ -5,6 +5,17 @@ import os
 from pathlib import Path
 import shutil
 
+
+def match_case_insensitive(absolute_path):
+    dirname, basename = os.path.split(absolute_path)
+    if not os.path.exists(dirname):
+        return
+
+    for item in os.listdir(dirname):
+        if item.lower() == basename.lower():
+            return os.path.join(dirname, item)
+
+
 ItemInfo = namedtuple('ItemInfo', 'equal unique mtimes left_to_right sizes')
 
 
@@ -61,6 +72,10 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
             file_other = os.path.join(other_path, item_name)
 
             if not os.path.exists(file_other):
+                # try to find a non-matching-case version of the same filename
+                file_other = match_case_insensitive(file_other)
+
+            if file_other is None or not os.path.isfile(file_other):
                 # unique file (only in this branch can `reverse` be True)
                 item_info = ItemInfo(equal=False, unique=True, mtimes=None,
                                      left_to_right=not reverse, sizes=None)
