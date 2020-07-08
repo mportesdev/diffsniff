@@ -277,14 +277,9 @@ class ResultDialog(QtWidgets.QDialog):
         self.exec_()
 
     def file_items(self):
-        names = utils.compare_one_way(self.dir_path_1, self.dir_path_2,
+        diff_items = utils.diff_items(self.dir_path_1, self.dir_path_2,
                                       self.ignore_dirs, self.ignore_files)
-
-        names.update(utils.compare_one_way(self.dir_path_2, self.dir_path_1,
-                                           self.ignore_dirs, self.ignore_files,
-                                           skip=names, reverse=True))
-
-        for item_name, item_info in names.items():
+        for item_name, item_info in diff_items.items():
             if item_info is None:
                 continue
             yield FileItem(self, self.dir_path_1, self.dir_path_2,

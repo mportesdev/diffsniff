@@ -32,16 +32,17 @@ class CaseInsensitiveMembershipDict(UserDict):
         return item.lower() in (key.lower() for key in self)
 
 
-def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
-                    skip=(), reverse=False):
+def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result):
     """Walk all files in `this_path` recursively and check for
-    existence of the file names in `other_path`. If a file is found in
-    both paths, check if the files are equal. Return a dictionary with
-    all processed file names as keys and ItemInfo objects as values.
+       existence of the file names in `other_path`. If a file is found
+       in both paths, check if the files are equal. Add results to the
+       `result` mapping, modifying it in-place.
     """
-    result = CaseInsensitiveMembershipDict()
     dirs_to_prune = shutil.ignore_patterns(*ignore_dirs)
     files_to_prune = shutil.ignore_patterns(*ignore_files)
+
+    # if `result` is not empty, assume this is the second pass
+    reverse = bool(result)
 
     # walk `this_path` and compare files with `other_path`
     for this_abspath, subdirs, files in os.walk(this_path):
@@ -62,7 +63,8 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
                                                filename)).as_posix()
             assert '\\' not in item_name
 
-            if item_name in skip:
+            if item_name in result:
+                # skip items processed in the first pass
                 continue
 
             # absolute paths of files
@@ -100,6 +102,14 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
                 item_info = None
 
             result[item_name] = item_info
+
+
+def diff_items(this_path, other_path, ignore_dirs=(), ignore_files=()):
+    """Run two passes of `compare_one_way` and return the result."""
+
+    result = CaseInsensitiveMembershipDict()
+    compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result)
+    compare_one_way(other_path, this_path, ignore_dirs, ignore_files, result)
 
     return result
 
