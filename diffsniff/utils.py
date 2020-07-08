@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, UserDict
 from datetime import datetime
 import filecmp
 import os
@@ -8,6 +8,19 @@ import shutil
 ItemInfo = namedtuple('ItemInfo', 'equal unique mtimes left_to_right sizes')
 
 
+class CaseInsensitiveMembershipDict(UserDict):
+    """Subclass of dictionary that performs a case-insensitive key
+       membership test.
+
+       Example:
+       >>> d = CaseInsensitiveMembershipDict({'File.txt': None})
+       >>> 'file.txt' in d
+       True
+    """
+    def __contains__(self, item):
+        return item.lower() in (key.lower() for key in self)
+
+
 def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
                     skip=(), reverse=False):
     """Walk all files in `this_path` recursively and check for
@@ -15,7 +28,7 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
     both paths, check if the files are equal. Return a dictionary with
     all processed file names as keys and ItemInfo objects as values.
     """
-    result = {}
+    result = CaseInsensitiveMembershipDict()
     dirs_to_prune = shutil.ignore_patterns(*ignore_dirs)
     files_to_prune = shutil.ignore_patterns(*ignore_files)
 
@@ -32,7 +45,7 @@ def compare_one_way(this_path, other_path, ignore_dirs=(), ignore_files=(),
         rel_path = os.path.relpath(this_abspath, this_path)
 
         for filename in files:
-            # file relative path (this is the string stored in `result`)
+            # file relative path (this is the string used as a key in `result`)
             item_name = Path(filename if rel_path == '.'
                              else os.path.join(rel_path,
                                                filename)).as_posix()
