@@ -115,7 +115,7 @@ def match_case_insensitive(absolute_path):
 
 def short_stats(mtime: float, size: int) -> str:
     mtime_iso = datetime.fromtimestamp(mtime).isoformat(' ', 'seconds')
-    return f'{mtime_iso}, {size} Bytes'
+    return f'{mtime_iso}, {size:,} Bytes'
 
 
 def set_fg_color(widget, color):
