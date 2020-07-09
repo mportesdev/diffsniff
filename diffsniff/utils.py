@@ -5,17 +5,6 @@ import os
 from pathlib import Path
 import shutil
 
-
-def match_case_insensitive(absolute_path):
-    dirname, basename = os.path.split(absolute_path)
-    if not os.path.exists(dirname):
-        return
-
-    for item in os.listdir(dirname):
-        if item.lower() == basename.lower():
-            return os.path.join(dirname, item)
-
-
 ItemInfo = namedtuple('ItemInfo', 'equal unique mtimes left_to_right sizes')
 
 
@@ -30,6 +19,16 @@ class CaseInsensitiveMembershipDict(UserDict):
     """
     def __contains__(self, item):
         return item.lower() in (key.lower() for key in self)
+
+
+def diff_items(this_path, other_path, ignore_dirs=(), ignore_files=()):
+    """Run two passes of `compare_one_way` and return the result."""
+
+    result = CaseInsensitiveMembershipDict()
+    compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result)
+    compare_one_way(other_path, this_path, ignore_dirs, ignore_files, result)
+
+    return result
 
 
 def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result):
@@ -104,14 +103,14 @@ def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result):
             result[item_name] = item_info
 
 
-def diff_items(this_path, other_path, ignore_dirs=(), ignore_files=()):
-    """Run two passes of `compare_one_way` and return the result."""
+def match_case_insensitive(absolute_path):
+    dirname, basename = os.path.split(absolute_path)
+    if not os.path.exists(dirname):
+        return
 
-    result = CaseInsensitiveMembershipDict()
-    compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result)
-    compare_one_way(other_path, this_path, ignore_dirs, ignore_files, result)
-
-    return result
+    for item in os.listdir(dirname):
+        if item.lower() == basename.lower():
+            return os.path.join(dirname, item)
 
 
 def short_stats(mtime: float, size: int) -> str:
