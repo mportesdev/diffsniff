@@ -164,21 +164,22 @@ class MainWidget(QtWidgets.QWidget):
 
 class FileItem(QtWidgets.QFrame):
 
-    def __init__(self, parent, dir_path_1, dir_path_2, item_name, mtimes, sizes,
-                 unique, left_to_right):
+    def __init__(self, parent, dir_path_1, dir_path_2, name_left, mtimes, sizes,
+                 unique, left_to_right, name_right):
         super().__init__(parent)
         self.parent = parent
-        self.left_abs_path = dir_path_1 / item_name
-        self.right_abs_path = dir_path_2 / item_name
+        self.left_abs_path = dir_path_1 / name_left
+        name_right = name_right or name_left
+        self.right_abs_path = dir_path_2 / name_right
 
         if mtimes:
             self.left_short_stats = utils.short_stats(mtimes[0], sizes[0])
             self.right_short_stats = utils.short_stats(mtimes[1], sizes[1])
 
         left_label = QtWidgets.QLabel('' if unique and not left_to_right
-                                      else item_name)
+                                      else name_left)
         right_label = QtWidgets.QLabel('' if unique and left_to_right
-                                       else item_name)
+                                       else name_right)
 
         if unique:
             copy_button = QtWidgets.QPushButton(get_icon(
@@ -282,9 +283,11 @@ class ResultDialog(QtWidgets.QDialog):
         for item_name, item_info in diff_items.items():
             if item_info is None:
                 continue
-            yield FileItem(self, self.dir_path_1, self.dir_path_2,
-                           item_name, item_info.mtimes, item_info.sizes,
-                           item_info.unique, item_info.left_to_right)
+            yield FileItem(
+                self, self.dir_path_1, self.dir_path_2, item_name,
+                item_info.mtimes, item_info.sizes, item_info.unique,
+                item_info.left_to_right, item_info.other_name
+            )
 
 
 class PresetsDialog(QtWidgets.QDialog):

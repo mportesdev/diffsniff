@@ -5,7 +5,10 @@ import os
 from pathlib import Path
 import shutil
 
-ItemInfo = namedtuple('ItemInfo', 'equal unique mtimes left_to_right sizes')
+ItemInfo = namedtuple(
+    'ItemInfo',
+    'equal unique mtimes left_to_right sizes other_name'
+)
 
 
 class CaseInsensitiveMembershipDict(UserDict):
@@ -77,10 +80,19 @@ def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result,
 
             if file_other is None or not os.path.isfile(file_other):
                 # unique file (only in this branch can `reverse` be True)
-                item_info = ItemInfo(equal=False, unique=True, mtimes=None,
-                                     left_to_right=not reverse, sizes=None)
+                result[item_name] = ItemInfo(
+                    equal=False, unique=True, mtimes=None,
+                    left_to_right=not reverse, sizes=None, other_name=None
+                )
+                continue
 
-            elif not filecmp.cmp(file_this, file_other, shallow=False):
+            other_basename = os.path.basename(file_other)
+            other_name = os.path.join(
+                os.path.dirname(item_name),
+                other_basename
+            ) if other_basename != os.path.basename(item_name) else None
+
+            if not filecmp.cmp(file_this, file_other, shallow=False):
                 assert not reverse
 
                 # unequal files of the same name
@@ -89,17 +101,16 @@ def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result,
                 size_this = os.path.getsize(file_this)
                 size_other = os.path.getsize(file_other)
 
-                item_info = ItemInfo(equal=False, unique=False,
-                                     mtimes=(mtime_this, mtime_other),
-                                     left_to_right=mtime_this > mtime_other,
-                                     sizes=(size_this, size_other))
+                result[item_name] = ItemInfo(
+                    equal=False, unique=False, mtimes=(mtime_this, mtime_other),
+                    left_to_right=mtime_this > mtime_other,
+                    sizes=(size_this, size_other), other_name=other_name
+                )
             else:
                 assert not reverse
 
                 # equal files
-                item_info = None
-
-            result[item_name] = item_info
+                result[item_name] = None
 
 
 def match_case_insensitive(absolute_path):
