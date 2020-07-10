@@ -62,7 +62,6 @@ def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result,
             item_name = Path(filename if rel_path == '.'
                              else os.path.join(rel_path,
                                                filename)).as_posix()
-            assert '\\' not in item_name
 
             if item_name in result:
                 # skip items processed in the first pass
@@ -70,8 +69,6 @@ def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result,
 
             # absolute paths of files
             file_this = os.path.join(this_abspath, filename)
-            assert os.path.samefile(file_this,
-                                    os.path.join(this_path, item_name))
             file_other = os.path.join(other_path, item_name)
 
             if not os.path.exists(file_other):
@@ -93,8 +90,6 @@ def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result,
             ) if other_basename != os.path.basename(item_name) else None
 
             if not filecmp.cmp(file_this, file_other, shallow=False):
-                assert not reverse
-
                 # unequal files of the same name
                 mtime_this = os.path.getmtime(file_this)
                 mtime_other = os.path.getmtime(file_other)
@@ -107,8 +102,6 @@ def compare_one_way(this_path, other_path, ignore_dirs, ignore_files, result,
                     sizes=(size_this, size_other), other_name=other_name
                 )
             else:
-                assert not reverse
-
                 # equal files
                 result[item_name] = None
 
